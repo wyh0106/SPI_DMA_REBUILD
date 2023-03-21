@@ -153,7 +153,7 @@ uint8_t BSP_W25Qx_ReadDMA(uint8_t *pData, uint32_t ReadAddr, uint32_t Size)
 }
 
 /**
- * @brief   DMA方式写数据
+ * @brief   DMA方式无检验写数据
  * @param   *pData    写缓存指针
  * @param   WriteAddr flash的地址
  * @param   Size      字节大小
@@ -232,7 +232,7 @@ uint8_t BSP_W25Qx_Write(uint8_t *pData, uint32_t WriteAddr, uint32_t Size)
  * @param   *pBuffer          写缓存指针
  * @param   WriteAddr         flash的地址
  * @param   NumByteToWrite    字节大小（最大256）
- * @note    轮询方式写入NumByteToWrite不应超过该页的剩余字节数
+ * @note    轮询方式写入（阻塞），NumByteToWrite不应超过该页的剩余字节数
  * @retval  NONE
  */
 static void BSP_W25Qx_WritePage(uint8_t *pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite)
@@ -311,47 +311,48 @@ void BSP_W25Qx_EraseWrite(uint8_t *pBuffer, uint32_t WriteAddr, uint16_t NumByte
     uint8_t *W25QXX_BUF;
 
     W25QXX_BUF = W25QXX_BUFFER;
-    secpos     = WriteAddr / W25Q64_SECTOR_SIZE; // 扇区地址
-    secoff     = WriteAddr % W25Q64_SECTOR_SIZE; // 在扇区内的偏移
-    secremain  = W25Q64_SECTOR_SIZE - secoff;    // 扇区剩余空间大小
+    secpos     = WriteAddr / W25Q64_SECTOR_SIZE;    // 扇区地址
+    secoff     = WriteAddr % W25Q64_SECTOR_SIZE;    // 在扇区内的偏移
+    secremain  = W25Q64_SECTOR_SIZE - secoff;       // 扇区剩余空间大小
 
     if (NumByteToWrite <= secremain)
-        secremain = NumByteToWrite; // 不大于4096个字节
+        secremain = NumByteToWrite;                 // 不大于4096个字节
 
     while (1) {
         BSP_W25Qx_Read(W25QXX_BUF, secpos * W25Q64_SECTOR_SIZE, W25Q64_SECTOR_SIZE); // 读出整个扇区的内容
 
-        for (i = 0; i < secremain; i++) // 校验是否存有数据
+        for (i = 0; i < secremain; i++)             // 校验是否存有数据
         {
-            if (W25QXX_BUF[secoff + i] != 0XFF)
-                break; // 需要擦除
+            if (W25QXX_BUF[secoff + i] != 0XFF)     // 需要擦除
+                break; 
         }
 
-        if (i < secremain) // 需要擦除
+        if (i < secremain)                          // 判断是否擦除
         {
-            BSP_W25Qx_Erase_Sector(secpos); // 擦除这个扇区
-            for (i = 0; i < secremain; i++) // 复制
+            BSP_W25Qx_Erase_Sector(secpos);         // 擦除这个扇区
+            for (i = 0; i < secremain; i++)         // 复制
             {
                 W25QXX_BUF[i + secoff] = pBuffer[i];
             }
-            BSP_W25Qx_Write(W25QXX_BUF, secpos * W25Q64_SECTOR_SIZE, W25Q64_SECTOR_SIZE); // 写入整个扇区
+            BSP_W25Qx_Write(W25QXX_BUF, secpos * W25Q64_SECTOR_SIZE, W25Q64_SECTOR_SIZE);   // 写入整个扇区
 
-        } else
-            BSP_W25Qx_Write(pBuffer, WriteAddr, secremain); // 写已经擦除了的,直接写入扇区剩余区间.
+        }
+        else
+            BSP_W25Qx_Write(pBuffer, WriteAddr, secremain);     // 写入已擦除扇区,直接写入剩余区间.
 
-        if (NumByteToWrite == secremain)    // 写入结束
+        if (NumByteToWrite == secremain)                        // 写入结束
             break;                          
-        else                                // 写入未结束
+        else                                                    // 写入未结束
         {
-            secpos++;                       // 扇区地址增1
-            secoff = 0;                     // 偏移位置为0
-            pBuffer += secremain;           // 指针偏移
-            WriteAddr += secremain;         // 写地址偏移
-            NumByteToWrite -= secremain;    // 字节数递减
+            secpos++;                                           // 扇区地址增1
+            secoff = 0;                                         // 偏移位置为0
+            pBuffer += secremain;                               // 指针偏移
+            WriteAddr += secremain;                             // 写地址偏移
+            NumByteToWrite -= secremain;                        // 字节数递减
             if (NumByteToWrite > W25Q64_SECTOR_SIZE)
-                secremain = W25Q64_SECTOR_SIZE;         // 下一个扇区写不完
+                secremain = W25Q64_SECTOR_SIZE;                 // 下一个扇区写不完
             else
-                secremain = NumByteToWrite;             // 下一个扇区能写完
+                secremain = NumByteToWrite;                     // 下一个扇区能写完
         }
     };
 }

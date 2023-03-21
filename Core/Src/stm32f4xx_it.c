@@ -287,7 +287,6 @@ void DMA2_Stream3_IRQHandler(void)
 
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
-    
     HAL_SPI_DMAStop(hspi);
     if(SPI2 == hspi->Instance)
         W25Qx_Disable();
@@ -297,14 +296,16 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
 {
     HAL_SPI_DMAStop(hspi);
-    W25Qx_Disable();
+    if(SPI2 == hspi->Instance)
+        W25Qx_Disable();
     flag = 0;
 }
 
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 {
     HAL_SPI_DMAStop(hspi);
-    W25Qx_Disable();
+    if(SPI2 == hspi->Instance)
+        W25Qx_Disable();
     flag = 0;
 }
 

@@ -26,6 +26,7 @@
 /* USER CODE BEGIN Includes */
 #include "w25q64.h"
 #include "DataPackage.h"
+#include "spi1_api.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -100,7 +101,6 @@ int main(void)
     MX_SPI1_Init();
     /* USER CODE BEGIN 2 */
     BSP_W25Qx_Init();
-    // BSP_W25Qx_Erase_Sector(0x00);
 
     uint16_t i;
     for (i = 0; i < 1620; i++) {
@@ -114,19 +114,40 @@ int main(void)
 
     // 写测试数据并读取
     BSP_W25Qx_EraseWrite(DataPack, 0x00, sizeof(DataPack));
-    
     BSP_W25Qx_ReadDMA(rdata, 0x00, sizeof(rdata));
-    if(flag)
+    while(flag)
     {
         HAL_Delay(1);
     }
-    flag = 1;
+    flag = 1;       // DMA回调标志
+
+    // SPI1 DMA收发测试
+    SPI1_SendDataPack(test_data);
+    while(flag)
+    {
+        HAL_Delay(1);
+    }
+    flag = 1;       // DMA回调标志
+
+    SPI1_ReceiveDataPack(rdata);
+    while(flag)
+    {
+        HAL_Delay(1);
+    }
+    flag = 1;       // DMA回调标志
+
+    SPI1_TxRxDataPack(test_data,rdata);
+    while(flag)
+    {
+        HAL_Delay(1);
+    }
+    flag = 1;       // DMA回调标志
 
     /* USER CODE END 2 */
 
     /* Infinite loop */
-    /* USER CODE BEGIN WHILE */
-    while (1) {
+    while (1)
+    {
         /* USER CODE END WHILE */
         NULL;
         /* USER CODE BEGIN 3 */

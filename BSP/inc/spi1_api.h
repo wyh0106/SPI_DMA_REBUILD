@@ -11,6 +11,8 @@
 extern uint8_t DataPack[1626];
 extern uint16_t header, data_rows;
 
-uint8_t SPI1_SendDataPack(uint8_t* data);
+uint8_t SPI1_SendDataPack(uint8_t* pBuffer);
+uint8_t SPI1_ReceiveDataPack(uint8_t* pBuffer);
+uint8_t SPI1_TxRxDataPack(uint8_t* pTxBuffer, uint8_t* pRxBuffer);
 
 #endif // __SPI1_API_H
