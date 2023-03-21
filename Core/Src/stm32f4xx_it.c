@@ -289,7 +289,7 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
     HAL_SPI_DMAStop(hspi);
     W25Qx_Disable();
-		flag = 0;
+    flag = 0;
 }
 
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)

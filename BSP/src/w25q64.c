@@ -199,11 +199,13 @@ uint8_t BSP_W25Qx_Write(uint8_t *pData, uint32_t WriteAddr, uint32_t Size)
         }
 
         /* Transmission of the data */
-        if (HAL_SPI_Transmit(&hspi2, pData, current_size, 10) != HAL_OK) {
+        if (HAL_SPI_TransmitDMA(&hspi2, pData, current_size, 10) != HAL_OK) {
             return W25Qx_ERROR;
         }
 
-        W25Qx_Disable();
+        if(flag){
+            HAL_Delay(1);
+        }
 
         /* Wait the end of Flash writing */
         while (BSP_W25Qx_GetStatus() == W25Qx_BUSY) {
