@@ -15,4 +15,4 @@
 *.eide-template
 
 # Keil MDK out
-/.MDK-ARM/SPI_DMA_REBUILD
+/MDK-ARM/SPI_DMA_REBUILD
