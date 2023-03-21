@@ -116,7 +116,11 @@ int main(void)
     BSP_W25Qx_EraseWrite(DataPack, 0x00, sizeof(DataPack));
     
     BSP_W25Qx_ReadDMA(rdata, 0x00, sizeof(rdata));
-	HAL_Delay(1000);
+    if(flag)
+    {
+        HAL_Delay(1);
+    }
+    flag = 1;
 
     /* USER CODE END 2 */
 

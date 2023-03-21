@@ -1,4 +1,6 @@
 #include "w25q64.h"
+
+extern uint8_t flag;
 uint8_t W25QXX_BUFFER[4096];
 
 /**
@@ -151,11 +153,11 @@ uint8_t BSP_W25Qx_ReadDMA(uint8_t *pData, uint32_t ReadAddr, uint32_t Size)
 }
 
 /**
- * @brief   查询方式写数据（阻塞）
+ * @brief   DMA方式写数据
  * @param   *pData    写缓存指针
  * @param   WriteAddr flash的地址
  * @param   Size      字节大小
- * @note    该函数写数据前不会自动擦除，使用前需要提前擦除数据
+ * @note    该函数写数据前不会自动擦除，使用前需要提前擦除数据，虽然是DMA，但是每写一页数据都需要等待，相当于半阻塞。
  * @retval  W25Q64状态
  */
 uint8_t BSP_W25Qx_Write(uint8_t *pData, uint32_t WriteAddr, uint32_t Size)
@@ -164,7 +166,7 @@ uint8_t BSP_W25Qx_Write(uint8_t *pData, uint32_t WriteAddr, uint32_t Size)
     uint32_t end_addr, current_size, current_addr;
     uint32_t tickstart = HAL_GetTick();
 
-    /* Calculation of the size between the write address and the end of the page */
+    // 计算写入地址和页末地址之间的大小
     current_addr = 0;
 
     while (current_addr <= WriteAddr) {
@@ -172,42 +174,43 @@ uint8_t BSP_W25Qx_Write(uint8_t *pData, uint32_t WriteAddr, uint32_t Size)
     }
     current_size = current_addr - WriteAddr;
 
-    /* Check if the size of the data is less than the remaining place in the page */
+    // 检查数据的大小是否小于页中的剩余位置
     if (current_size > Size) {
         current_size = Size;
     }
 
-    /* Initialize the adress variables */
+    // 初始化地址变量
     current_addr = WriteAddr;
     end_addr     = WriteAddr + Size;
 
-    /* Perform the write page by page */
-    do {
-        /* Configure the command */
+    // 逐页写入，每次写入一页数据
+    do
+    {
         cmd[0] = PAGE_PROG_CMD;
         cmd[1] = (uint8_t)(current_addr >> 16);
         cmd[2] = (uint8_t)(current_addr >> 8);
         cmd[3] = (uint8_t)(current_addr);
 
-        /* Enable write operations */
+        // 写使能
         BSP_W25Qx_WriteEnable();
 
         W25Qx_Enable();
-        /* Send the command */
+        // 发送写入命令和写入地址
         if (HAL_SPI_Transmit(&hspi2, cmd, 4, 10) != HAL_OK) {
             return W25Qx_ERROR;
         }
 
-        /* Transmission of the data */
-        if (HAL_SPI_TransmitDMA(&hspi2, pData, current_size, 10) != HAL_OK) {
+        // SPI2发送数据缓冲区写入数据到当前地址
+        if (HAL_SPI_Transmit_DMA(&hspi2, pData, current_size) != HAL_OK){
             return W25Qx_ERROR;
         }
 
         if(flag){
             HAL_Delay(1);
         }
+        flag = 1;
 
-        /* Wait the end of Flash writing */
+        // 等待flash完成写入
         while (BSP_W25Qx_GetStatus() == W25Qx_BUSY) {
             /* Check for the Timeout */
             if ((HAL_GetTick() - tickstart) > W25Qx_TIMEOUT_VALUE) {
@@ -215,7 +218,7 @@ uint8_t BSP_W25Qx_Write(uint8_t *pData, uint32_t WriteAddr, uint32_t Size)
             }
         }
 
-        /* Update the address and size variables for next page programming */
+        // 为下一页编程更新地址和大小变量
         current_addr += current_size;
         pData += current_size;
         current_size = ((current_addr + W25Q64_PAGE_SIZE) > end_addr) ? (end_addr - current_addr) : W25Q64_PAGE_SIZE;
@@ -229,7 +232,7 @@ uint8_t BSP_W25Qx_Write(uint8_t *pData, uint32_t WriteAddr, uint32_t Size)
  * @param   *pBuffer          写缓存指针
  * @param   WriteAddr         flash的地址
  * @param   NumByteToWrite    字节大小（最大256）
- * @note    NumByteToWrite不应超过该页的剩余字节数
+ * @note    轮询方式写入NumByteToWrite不应超过该页的剩余字节数
  * @retval  NONE
  */
 static void BSP_W25Qx_WritePage(uint8_t *pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite)
@@ -260,6 +263,7 @@ static void BSP_W25Qx_WritePage(uint8_t *pBuffer, uint32_t WriteAddr, uint16_t N
  * @param   *pBuffer          写缓存指针
  * @param   WriteAddr         flash的地址
  * @param   NumByteToWrite    字节大小(最大65535)
+ * @note    该方案为轮询写入（阻塞）
  * @retval  NONE
  */
 static void BSP_W25Qx_WriteNoCheck(uint8_t *pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite)
@@ -330,10 +334,10 @@ void BSP_W25Qx_EraseWrite(uint8_t *pBuffer, uint32_t WriteAddr, uint16_t NumByte
             {
                 W25QXX_BUF[i + secoff] = pBuffer[i];
             }
-            BSP_W25Qx_WriteNoCheck(W25QXX_BUF, secpos * W25Q64_SECTOR_SIZE, W25Q64_SECTOR_SIZE); // 写入整个扇区
+            BSP_W25Qx_Write(W25QXX_BUF, secpos * W25Q64_SECTOR_SIZE, W25Q64_SECTOR_SIZE); // 写入整个扇区
 
         } else
-            BSP_W25Qx_WriteNoCheck(pBuffer, WriteAddr, secremain); // 写已经擦除了的,直接写入扇区剩余区间.
+            BSP_W25Qx_Write(pBuffer, WriteAddr, secremain); // 写已经擦除了的,直接写入扇区剩余区间.
 
         if (NumByteToWrite == secremain)    // 写入结束
             break;                          
@@ -345,9 +349,9 @@ void BSP_W25Qx_EraseWrite(uint8_t *pBuffer, uint32_t WriteAddr, uint16_t NumByte
             WriteAddr += secremain;         // 写地址偏移
             NumByteToWrite -= secremain;    // 字节数递减
             if (NumByteToWrite > W25Q64_SECTOR_SIZE)
-                secremain = W25Q64_SECTOR_SIZE;         // 下一个扇区还是写不完
+                secremain = W25Q64_SECTOR_SIZE;         // 下一个扇区写不完
             else
-                secremain = NumByteToWrite;             // 下一个扇区可以写完了
+                secremain = NumByteToWrite;             // 下一个扇区能写完
         }
     };
 }

@@ -287,8 +287,10 @@ void DMA2_Stream3_IRQHandler(void)
 
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
+    
     HAL_SPI_DMAStop(hspi);
-    W25Qx_Disable();
+    if(SPI2 == hspi->Instance)
+        W25Qx_Disable();
     flag = 0;
 }
 
