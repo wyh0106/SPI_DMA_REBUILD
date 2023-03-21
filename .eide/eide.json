@@ -1,0 +1,222 @@
+{
+  "name": "SPI_DMA_REBUILD",
+  "type": "ARM",
+  "dependenceList": [],
+  "srcDirs": [
+    ".eide/deps"
+  ],
+  "virtualFolder": {
+    "name": "<virtual_root>",
+    "files": [],
+    "folders": [
+      {
+        "name": "Application",
+        "files": [],
+        "folders": [
+          {
+            "name": "MDK-ARM",
+            "files": [
+              {
+                "path": "MDK-ARM/startup_stm32f401xc.s"
+              }
+            ],
+            "folders": []
+          },
+          {
+            "name": "User",
+            "files": [],
+            "folders": [
+              {
+                "name": "Core",
+                "files": [
+                  {
+                    "path": "Core/Src/dma.c"
+                  },
+                  {
+                    "path": "Core/Src/gpio.c"
+                  },
+                  {
+                    "path": "Core/Src/main.c"
+                  },
+                  {
+                    "path": "Core/Src/spi.c"
+                  },
+                  {
+                    "path": "Core/Src/stm32f4xx_hal_msp.c"
+                  },
+                  {
+                    "path": "Core/Src/stm32f4xx_it.c"
+                  }
+                ],
+                "folders": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "BSP",
+        "files": [
+          {
+            "path": "BSP/src/DataPackage.c"
+          },
+          {
+            "path": "BSP/src/spi1_api.c"
+          },
+          {
+            "path": "BSP/src/w25q64.c"
+          }
+        ],
+        "folders": []
+      },
+      {
+        "name": "Drivers",
+        "files": [],
+        "folders": [
+          {
+            "name": "CMSIS",
+            "files": [
+              {
+                "path": "Core/Src/system_stm32f4xx.c"
+              }
+            ],
+            "folders": []
+          },
+          {
+            "name": "STM32F4xx_HAL_Driver",
+            "files": [
+              {
+                "path": "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c"
+              },
+              {
+                "path": "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma_ex.c"
+              },
+              {
+                "path": "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c"
+              },
+              {
+                "path": "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_exti.c"
+              },
+              {
+                "path": "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c"
+              },
+              {
+                "path": "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ramfunc.c"
+              },
+              {
+                "path": "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c"
+              },
+              {
+                "path": "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c"
+              },
+              {
+                "path": "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c"
+              },
+              {
+                "path": "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c"
+              },
+              {
+                "path": "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c"
+              },
+              {
+                "path": "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c"
+              },
+              {
+                "path": "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c"
+              },
+              {
+                "path": "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c"
+              },
+              {
+                "path": "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c"
+              },
+              {
+                "path": "Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c"
+              }
+            ],
+            "folders": []
+          }
+        ]
+      }
+    ]
+  },
+  "outDir": "build",
+  "deviceName": null,
+  "packDir": null,
+  "miscInfo": {
+    "uid": "63b447fcab09111c850847f8567c620d"
+  },
+  "targets": {
+    "SPI_DMA_REBUILD": {
+      "excludeList": [],
+      "toolchain": "AC6",
+      "compileConfig": {
+        "cpuType": "Cortex-M4",
+        "floatingPointHardware": "single",
+        "useCustomScatterFile": false,
+        "scatterFilePath": "<YOUR_SCATTER_FILE>.sct",
+        "storageLayout": {
+          "RAM": [
+            {
+              "tag": "IRAM",
+              "id": 1,
+              "mem": {
+                "startAddr": "0x20000000",
+                "size": "0x5000"
+              },
+              "isChecked": true,
+              "noInit": false
+            }
+          ],
+          "ROM": [
+            {
+              "tag": "IROM",
+              "id": 1,
+              "mem": {
+                "startAddr": "0x08000000",
+                "size": "0x10000"
+              },
+              "isChecked": true,
+              "isStartup": true
+            }
+          ]
+        },
+        "options": "null"
+      },
+      "uploader": "JLink",
+      "uploadConfig": {
+        "bin": "",
+        "baseAddr": "",
+        "cpuInfo": {
+          "vendor": "ST",
+          "cpuName": "STM32F401RC"
+        },
+        "proType": 1,
+        "speed": 1000,
+        "otherCmds": ""
+      },
+      "uploadConfigMap": {},
+      "custom_dep": {
+        "name": "default",
+        "incList": [
+          "Core/Inc",
+          "Drivers/STM32F4xx_HAL_Driver/Inc",
+          "Drivers/STM32F4xx_HAL_Driver/Inc/Legacy",
+          "Drivers/CMSIS/Device/ST/STM32F4xx/Include",
+          "Drivers/CMSIS/Include",
+          ".cmsis/include",
+          "MDK-ARM/RTE/_SPI_DMA_REBUILD",
+          ".eide/deps",
+          "BSP/inc"
+        ],
+        "libList": [],
+        "sourceDirList": [],
+        "defineList": [
+          "USE_HAL_DRIVER",
+          "STM32F401xC"
+        ]
+      }
+    }
+  },
+  "version": "3.3"
+}
