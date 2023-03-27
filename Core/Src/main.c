@@ -121,35 +121,38 @@ int main(void)
     }
     flag = 1;       // DMA回调标志
 
-    // SPI1 DMA收发测试
-    SPI1_SendDataPack(test_data);
-    while(flag)
-    {
-        HAL_Delay(1);
-    }
-    flag = 1;       // DMA回调标志
+    // // SPI1 DMA收发测试
+    // SPI1_SendDataPack(test_data);
+    // while(flag)
+    // {
+    //     HAL_Delay(1);
+    // }
+    // flag = 1;       // DMA回调标志
 
-    SPI1_ReceiveDataPack(rdata);
-    while(flag)
-    {
-        HAL_Delay(1);
-    }
-    flag = 1;       // DMA回调标志
+    // SPI1_ReceiveDataPack(rdata);
+    // while(flag)
+    // {
+    //     HAL_Delay(1);
+    // }
+    // flag = 1;       // DMA回调标志
 
-    SPI1_TxRxDataPack(test_data,rdata);
-    while(flag)
-    {
-        HAL_Delay(1);
-    }
-    flag = 1;       // DMA回调标志
+    // SPI1_TxRxDataPack(test_data,rdata);
+    // while(flag)
+    // {
+    //     HAL_Delay(1);
+    // }
+    // flag = 1;       // DMA回调标志
 
     /* USER CODE END 2 */
-
+    data_rows = 0;
     /* Infinite loop */
     while (1)
     {
+        SPI1_SendDataPack(test_data);
+        data_rows++;
+		HAL_Delay(1000);
         /* USER CODE END WHILE */
-        NULL;
+        
         /* USER CODE BEGIN 3 */
     }
     /* USER CODE END 3 */
